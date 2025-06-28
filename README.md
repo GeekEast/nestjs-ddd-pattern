@@ -1,33 +1,39 @@
 # Nestjs Domain Driven Design Patterns
 
-## Layered Architecture
+## Hexagonal Architecture
+> also known as Ports and Adapters Architecture, aiming to create a highly decoupled and testable application by emphasizing the seperation of concerns between the core business logic and external concerns.
 
-Presentation -> Application -> Domain -> Data Access
+<p align="center"><img style="display: block; width: 600px; margin: 0 auto;" src="./img/2025-06-28-01-46-45.png" alt="no image found"></p>
 
 
-Presentation Layer:
-- Controllers, Resolvers
-- DTOs
-- Error Handling
+Application Layer
+- application service
+- facade handlers
+will communicate with data access components and message broker and other external system through **ports** (interfaces)
 
-Application Layer:
-- Services
-- Command/Query Handlers
-- Workflow Orchestrator
-- Transaction Management
-- Authentication/Authorization
-- Cache
+Domain Layer
+- entities
+- value objects: immutable, side-effect free, equal by value
+- domain events
 
-Domain Layer:
-- Entity
-- Value Object
-- Domaine Service
-- Aggregates
-- Domain Events
-- Business Rules
+Infrastructure Layer
+- data access components
+- message broker
+- external system
+will implement ports with application layer, called adapters.
 
-Infrastructure Layer:
-- Data Persistency
-- Third-Party API
-- Config, Logs
-- Utils
+Representer Layer
+- controllers
+- gateways
+- user-facing components
+
+
+```
+.
+└── src
+    └── alarm (module -> bounded context)
+        ├── application
+        ├── domain
+        ├── infrastructure
+        └── presenter
+```
