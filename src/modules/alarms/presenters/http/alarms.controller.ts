@@ -9,7 +9,7 @@ export class AlarmsController {
 
     @Post()
     create(@Body() createAlarmDto: CreateAlarmDto) {
-        const createAlarmCommand = new CreateAlarmCommand(createAlarmDto.name, createAlarmDto.severity);
+        const createAlarmCommand = CreateAlarmCommand.fromDto(createAlarmDto);
         return this.alarmsService.create(createAlarmCommand);
     }
 

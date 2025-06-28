@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { AlarmRepository } from "src/alarms/application/ports/alarm.repository";
+import { AlarmRepository } from "src/modules/alarms/application/ports/alarm.repository";
 import { AlarmDo } from "../dos/alarm.do";
 import { Repository } from "typeorm";
-import { Alarm } from "src/alarms/domain/alarm";
+import { AlarmEntity } from "src/modules/alarms/domain/alarm.entity";
 import { AlarmMapper } from "../mappers/alarm.mapper";
 
 
@@ -11,16 +11,16 @@ import { AlarmMapper } from "../mappers/alarm.mapper";
 export class OrmAlarmRepository implements AlarmRepository {
     constructor(@InjectRepository(AlarmDo) private readonly alarmRepository: Repository<AlarmDo>) { }
 
-    async create(alarm: Alarm): Promise<Alarm> {
-        const alarmDo = AlarmMapper.fromDomainToDO(alarm);
+    async create(alarm: AlarmEntity): Promise<AlarmEntity> {
+        const alarmDo = AlarmMapper.fromDomainEntityToDO(alarm);
         const savedAlarmDo = await this.alarmRepository.save(alarmDo);
-        return AlarmMapper.fromDoToDomain(savedAlarmDo);
+        return AlarmMapper.fromDoToDomainEntity(savedAlarmDo);
     }
 
 
-    async findAll(): Promise<Alarm[]> {
+    async findAll(): Promise<AlarmEntity[]> {
         const alarmDos = await this.alarmRepository.find();
-        return alarmDos.map(alarmDo => AlarmMapper.fromDoToDomain(alarmDo));
+        return alarmDos.map(alarmDo => AlarmMapper.fromDoToDomainEntity(alarmDo));
     }
 
 }

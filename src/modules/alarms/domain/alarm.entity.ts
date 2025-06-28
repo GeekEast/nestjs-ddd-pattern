@@ -1,6 +1,6 @@
 import { AlarmSeverity } from "./value-objects/alarm-severity";
 
-export class Alarm {
+export class AlarmEntity {
     constructor(
         public id: string,
         public name: string,

@@ -1,35 +1,23 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { loadBaseConfig } from "./infrastructure/config/base.config";
-import { AlarmsModule } from './alarms/application/alarms.module';
+import { loadBaseConfig } from "./common/config/base.config";
+import { AlarmsModule } from './modules/alarms/application/alarms.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AlarmDo } from './alarms/infrastructure/persistence/orm/dos/alarm.do';
-import { loadDatabaseConfig } from './infrastructure/config/db.config';
+import { AlarmDo } from './modules/alarms/infrastructure/persistence/orm/dos/alarm.do';
+import { loadDatabaseConfig } from './common/config/db.config';
+import { CoreModule } from './modules/core/core.module';
+import { AlarmInfrastructureModule } from './modules/alarms/infrastructure/alarm-infrastructure.module';
+import { ApplicationBootstrapOptions } from './common/interfaces/application-bootstrap-options.interface';
 
-@Module({
-  imports: [ConfigModule.forRoot({
-    isGlobal: true,
-    load: [loadBaseConfig, loadDatabaseConfig],
-  },
-  ),
-  TypeOrmModule.forRootAsync({
-    inject: [ConfigService],
-    useFactory: async (configService: ConfigService) => {
-      return {
-        type: 'postgres',
-        host: configService.get('db.host'),
-        port: configService.get('db.port'),
-        username: configService.get('db.username'),
-        password: configService.get('db.password'),
-        database: configService.get('db.database'),
-        synchronize: true,
-        entities: [AlarmDo],
-      }
-    },
-  }),
-    AlarmsModule,
-  ],
-  controllers: [],
-  providers: [],
-})
-export class AppModule { }
+@Module({})
+export class AppModule {
+  static register(options: ApplicationBootstrapOptions): DynamicModule {
+    return {
+      module: AppModule,
+      imports: [
+        CoreModule.forRoot(options),
+        AlarmsModule.withInfrastructure(AlarmInfrastructureModule.use(options.driver)),
+      ],
+    }
+  }
+}
