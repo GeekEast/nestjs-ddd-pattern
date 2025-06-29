@@ -1,9 +1,8 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { loadBaseConfig } from 'src/common/config/base.config';
-import { loadDatabaseConfig } from 'src/common/config/db.config';
 import { ApplicationBootstrapOptions } from 'src/common/interfaces/application-bootstrap-options.interface';
+import { ConfigModule } from 'src/providers/config/config.module';
+import { ConfigService } from 'src/providers/config/config.service';
 
 @Module({})
 export class CoreModule {
@@ -13,11 +12,11 @@ export class CoreModule {
             useFactory: async (configService: ConfigService) => {
                 return {
                     type: 'postgres',
-                    host: configService.get('db.host'),
-                    port: configService.get('db.port'),
-                    username: configService.get('db.username'),
-                    password: configService.get('db.password'),
-                    database: configService.get('db.database'),
+                    host: configService.get("postgres.POSTGRES_HOST"),
+                    port: configService.get("postgres.POSTGRES_PORT"),
+                    username: configService.get("postgres.POSTGRES_USERNAME"),
+                    password: configService.get("postgres.POSTGRES_PASSWORD"),
+                    database: configService.get("postgres.POSTGRES_DATABASE"),
                     synchronize: true,
                     autoLoadEntities: true,
                 }
@@ -30,10 +29,7 @@ export class CoreModule {
         return {
             module: CoreModule,
             imports: [
-                ConfigModule.forRoot({
-                    isGlobal: true,
-                    load: [loadBaseConfig, loadDatabaseConfig],
-                }),
+                ConfigModule,
                 ...this.INFRASTRUCTURE_MODULES[options.driver],
             ]
         }
